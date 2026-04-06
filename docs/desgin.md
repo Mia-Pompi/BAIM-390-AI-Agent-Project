@@ -24,11 +24,11 @@ Grading or academic evaluation
 
 Your agent is successful if it can:
 
-✅ Correctly prioritize tasks based on deadlines and workload
-✅ Generate a realistic daily/weekly study plan
-✅ Adapt when new tasks are added or deadlines change
-✅ Provide clear, actionable responses (not vague suggestions)
-✅ Maintain useful memory across interactions
+ Correctly prioritize tasks based on deadlines and workload
+ Generate a realistic daily/weekly study plan
+ Adapt when new tasks are added or deadlines change
+ Provide clear, actionable responses (not vague suggestions)
+ Maintain useful memory across interactions
 
 Stretch Goals:
 
