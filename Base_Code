@@ -1,0 +1,66 @@
+from fastapi import FastAPI from datetime import datetime, timedelta 
+
+app = FastAPI() 
+
+------------------------ 
+
+In-memory task storage 
+
+------------------------ 
+
+tasks = [ { "id": 1, "title": "Math Homework", "due_date": "2026-04-10", "estimated_hours": 3, "status": "incomplete" }, { "id": 2, "title": "History Essay", "due_date": "2026-04-12", "estimated_hours": 2, "status": "incomplete" }, { "id": 3, "title": "Physics Reading", "due_date": "2026-04-09", "estimated_hours": 1.5, "status": "incomplete" } ] 
+
+------------------------ 
+
+Priority computation 
+
+------------------------ 
+
+def compute_priority(task): today = datetime.today() due = datetime.strptime(task["due_date"], "%Y-%m-%d") days_left = (due - today).days urgency = 1 / max(days_left, 1) # sooner = higher effort = task["estimated_hours"] return (0.7 * urgency) + (0.3 * effort) 
+
+def prioritize_tasks(tasks): return sorted(tasks, key=compute_priority, reverse=True) 
+
+------------------------ 
+
+Scheduler with time blocks 
+
+------------------------ 
+
+def generate_daily_schedule(tasks, start_time="09:00", total_hours=4, break_minutes=15): """ Generates a schedule with start/end times for each task. """ schedule = [] prioritized_tasks = prioritize_tasks(tasks) 
+
+# Parse start_time into datetime 
+now = datetime.today() 
+start_hour, start_minute = map(int, start_time.split(":")) 
+current_time = now.replace(hour=start_hour, minute=start_minute, second=0, microsecond=0) 
+ 
+remaining_hours = total_hours 
+ 
+for task in prioritized_tasks: 
+    if remaining_hours <= 0: 
+        break 
+    task_hours = min(task["estimated_hours"], remaining_hours) 
+    end_time = current_time + timedelta(hours=task_hours) 
+     
+    schedule.append({ 
+        "task": task["title"], 
+        "start": current_time.strftime("%H:%M"), 
+        "end": end_time.strftime("%H:%M"), 
+        "hours": task_hours 
+    }) 
+     
+    # Update current_time (+ break) 
+    current_time = end_time + timedelta(minutes=break_minutes) 
+    remaining_hours -= task_hours 
+ 
+return schedule 
+  
+
+------------------------ 
+
+FastAPI endpoint 
+
+------------------------ 
+
+@app.get("/plan") def get_daily_plan(): schedule = generate_daily_schedule(tasks) return { "message": "Here is your scheduled plan for today with time blocks:", "schedule": schedule } 
+
+for t in schedule: print(f"{t['start']} - {t['end']}: {t['task']} ({t['hours']}h)") 
